@@ -13,7 +13,7 @@ using Xamarin.Forms.Platform.Android;
 
 namespace Code9.Scandit.Android
 {
-	[Activity (Label = "Code9.Scandit.Android.Android", MainLauncher = true, ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation)]
+	[Activity (Label = "Code9 Scandit", MainLauncher = true, ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation)]
 	public class MainActivity : AndroidActivity
 	{
 		protected override void OnCreate (Bundle bundle)

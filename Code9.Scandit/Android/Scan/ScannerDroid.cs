@@ -1,6 +1,8 @@
 ﻿using System;
+using Android.Views;
+using Scandit;
+using Scandit.Interfaces;
 using Xamarin.Forms;
-using ScanditSDK;
 using Android.OS;
 using System.Threading.Tasks;
 using Android.App;
@@ -20,22 +22,23 @@ namespace Code9.Android
 			this.cancelText = cancelText;
 		}
 
-		Result scanResult = null;
+		ScanResult scanResult = null;
 		ManualResetEvent waitScanResetEvent = null;
-			
+
 		public System.Threading.Tasks.Task<ScanResult> ScanAsync ()
 		{
-			Task<ScanResult>.Run (() => {
+			return Task<ScanResult>.Run (() => {
 				waitScanResetEvent = new ManualResetEvent (false);
 
 				//Run ScanditActivity
-				var intent = new Intent (Application.Context, typeof(ScanditActivity));
+				var intent = new Intent (Context, typeof(ScanditActivity));
+				intent.SetFlags(ActivityFlags.NewTask);
 				intent.PutExtra ("licenseKey", licenseKey);
 
 				ScanditActivity.OnCanceled += OnCanceled;
 				ScanditActivity.OnScanCompleted += OnScanCompleted;
 
-				Application.Context.StartActivity (intent);
+				Context.StartActivity (intent);
 
 				waitScanResetEvent.WaitOne ();
 
@@ -59,17 +62,21 @@ namespace Code9.Android
 		}
 	}
 
-	public class ScanditActivity: Activity, Scandit.Interfaces.IScanditSDKListener {
+	[Activity(Label = "ScanditActivity")]
+	public class ScanditActivity: Activity, IScanditSDKListener {
 
-		private Scandit.ScanditSDKBarcodePicker picker;
+		private ScanditSDKBarcodePicker picker;
 
 		protected override void OnCreate (Bundle savedInstanceState)
 		{
 			base.OnCreate (savedInstanceState);
 
+			RequestWindowFeature(WindowFeatures.NoTitle);
+			Window.SetFlags(WindowManagerFlags.Fullscreen, WindowManagerFlags.Fullscreen);
+
 			string licenseKey = Intent.GetStringExtra ("licenseKey");
 
-			picker = new Scandit.ScanditSDKBarcodePicker (this.ApplicationContext, licenseKey);
+			picker = new ScanditSDKBarcodePicker (this, licenseKey, ScanditSDK.CameraFacingBack);
 
 			picker.OverlayView.AddListener (this);
 
@@ -84,6 +91,24 @@ namespace Code9.Android
 			if (OnCanceled != null) {
 				OnCanceled ();
 			}
+		}
+
+		public override void OnBackPressed ()
+		{
+			base.OnBackPressed ();
+			DidCancel ();
+		}
+
+		protected override void OnResume ()
+		{
+			base.OnResume ();
+			picker.StartScanning ();
+		}
+
+		protected override void OnPause ()
+		{
+			picker.StopScanning ();
+			base.OnPause ();
 		}
 
 		public void DidManualSearch (string p0)

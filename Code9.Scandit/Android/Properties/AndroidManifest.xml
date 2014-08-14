@@ -3,4 +3,5 @@
 	<uses-sdk />
 	<application android:label="Code9.Scandit.Android">
 	</application>
+	<uses-permission android:name="android.permission.CAMERA" />
 </manifest>
