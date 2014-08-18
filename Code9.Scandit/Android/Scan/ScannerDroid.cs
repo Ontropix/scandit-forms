@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
 using System.Threading;
+using Android.Content.PM;
+using Android.Support.V4.App;
 
 [assembly: Dependency(typeof(Code9.Android.ScannerDroid))]
 namespace Code9.Android
@@ -31,14 +33,13 @@ namespace Code9.Android
 				waitScanResetEvent = new ManualResetEvent (false);
 
 				//Run ScanditActivity
-				var intent = new Intent (Context, typeof(ScanditActivity));
-				intent.SetFlags(ActivityFlags.NewTask);
+				var intent = new Intent (Forms.Context, typeof(ScanditActivity));
 				intent.PutExtra ("licenseKey", licenseKey);
 
 				ScanditActivity.OnCanceled += OnCanceled;
 				ScanditActivity.OnScanCompleted += OnScanCompleted;
 
-				Context.StartActivity (intent);
+				Forms.Context.StartActivity (intent);
 
 				waitScanResetEvent.WaitOne ();
 
@@ -62,8 +63,8 @@ namespace Code9.Android
 		}
 	}
 
-	[Activity(Label = "ScanditActivity")]
-	public class ScanditActivity: Activity, IScanditSDKListener {
+	[Activity(Label = "ScanditActivity", ConfigurationChanges=ConfigChanges.Orientation|ConfigChanges.KeyboardHidden|ConfigChanges.ScreenLayout)]
+	public class ScanditActivity: FragmentActivity, IScanditSDKListener {
 
 		private ScanditSDKBarcodePicker picker;
 
@@ -111,7 +112,7 @@ namespace Code9.Android
 			base.OnPause ();
 		}
 
-		public void DidManualSearch (string p0)
+		public void DidManualSearch (string text)
 		{
 			//Do nothing
 		}
