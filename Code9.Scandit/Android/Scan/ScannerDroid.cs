@@ -117,7 +117,7 @@ namespace Code9.Android
 			//Do nothing
 		}
 
-		public void DidScanBarcode (string type, string barcode)
+		public void DidScanBarcode (string barcode, string type)
 		{
 			this.Finish ();
 			if (OnScanCompleted != null) {
